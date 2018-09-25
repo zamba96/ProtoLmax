@@ -1,0 +1,25 @@
+JSONS de Requests
+Esta es la forma que deben tener los JSON de as request que se mandan por kafka al servidor lmax-esque
+
+
+Request GET: retorna un parqueadero con el id dado:
+
+{'id':'<idParqueadero>','type':'get'}
+
+Request GetTime: Retorna un TimeResponse con el tiempo que lleva un carro en el parqueadero dado
+
+{'id':'<idParqueadero>','type':'getTime'}
+
+Request Ocupar: Ocupa el parqueadero con el id dado
+
+{'id':'<idParqueadero>','type':'ocupar'}
+
+Request desocpar: desocupa el parqueadero con el id dado
+
+{'id':'<idParqueadero>','type':'desocupar'}
+
+Request add: agrega un parqueadero al sistema
+
+{'id':'<idParqueadero>','type':'add','direccion':'<direccionParqueadero>'}
+
+Nota que esta lista debe ser extendida a medida que se agrega funcionalidad al servidor lmax-esque y que el formato de respuesta es diferente.
