@@ -11,7 +11,10 @@ public class OutBuffer {
 	
 	private int addPos;
 	
+	@SuppressWarnings("unused")
 	private int readerPos;
+	
+	
 	
 	public OutBuffer(int n) {
 		this.n = n;

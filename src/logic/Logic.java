@@ -20,16 +20,28 @@ public class Logic extends Thread{
 	
 	private OutBuffer bufferSalida;
 	
+	/**
+	 * inicializa el procesador de logica
+	 * @param espacios numero de espacios iniciales (para tener el HashMap listo)
+	 * @param buffer el buffer de donde se leen los @Requests a procesar
+	 * @param bufferSalida el buffer donde se van a escribir las @Response
+	 */
 	public Logic(int espacios, Buffer buffer, OutBuffer bufferSalida) {
 		mapa = new HashMap<>(espacios);
 		this.buffer = buffer;
 		this.bufferSalida = bufferSalida;
 		sigue  = true;
+		//Crea muchos espacios nuevos
 		for(Long i = 0L; i < espacios; i++) {
 			mapa.put(i, new Espacio("Calle: " + i, i));
 		}
 	}
 	
+	/**
+	 * agrega un espacio al sistema
+	 * @param req el request con la informacion del espacio nuevo
+	 * @return un response con el espacio creado
+	 */
 	public Response addEspacio(Request req) {
 		Espacio nu = new Espacio(req.getDireccion(), req.getId());
 		mapa.put(nu.getId(), nu);
@@ -75,14 +87,16 @@ public class Logic extends Thread{
 		}
 	}
 	
+	/**
+	 * Metodo que va recorriendo el Buffer y va manejando los Requests
+	 */
 	public void run() {
 		while(sigue) {
 			BufferSlot bs = buffer.getNextSlotLogic();
 			if(bs == null) {
 				try {
 					sleep(10L);
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) {e.printStackTrace();}
 			}else {
 				Response res = manejarRequest(bs);
 				bs.setProcessed(true);
@@ -90,9 +104,7 @@ public class Logic extends Thread{
 				while(!bufferSalida.addResponse(res)) {
 					try {
 						sleep(10L);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					} catch (InterruptedException e) {e.printStackTrace();}
 				}
 			}
 		}
@@ -130,8 +142,8 @@ public class Logic extends Thread{
 
 	/**
 	 * retorna un Response con el espacio buscado
-	 * @param r
-	 * @return
+	 * @param r Request que se desea procesar	
+	 * @return response con el espacio dado
 	 */
 	private Response get(Request req) {
 		Espacio espacio = mapa.get(req.getId());
