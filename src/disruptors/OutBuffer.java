@@ -37,6 +37,12 @@ public class OutBuffer {
 			return false;
 		}
 	}
+
+
+	public OutSlot getNextSlot() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 }
