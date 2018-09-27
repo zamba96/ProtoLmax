@@ -108,6 +108,7 @@ public class Logic extends Thread{
 				}
 			}
 		}
+		System.out.println("Logic Closed");
 	}
 
 	private Response manejarRequest(BufferSlot bs) {

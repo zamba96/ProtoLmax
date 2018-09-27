@@ -41,6 +41,7 @@ public class MarshallerDisruptor extends Thread{
 				}
 			}
 		}
+		System.out.println("Marshaller closed");
 
 	}
 

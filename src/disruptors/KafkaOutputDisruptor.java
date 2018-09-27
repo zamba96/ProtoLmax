@@ -23,7 +23,7 @@ public class KafkaOutputDisruptor extends Thread{
 	public boolean sigue;
 
 
-	public static String KAFKA_BROKERS = "172.24.41.149:8081";
+	public static String KAFKA_BROKERS = "172.24.41.149:";
 
 	public static String CLIENT_ID="client1";
 
@@ -40,17 +40,20 @@ public class KafkaOutputDisruptor extends Thread{
 	public static Integer MAX_POLL_RECORDS=1;
 
 	private Gson gson;
+	
+	private String port;
 
-	public KafkaOutputDisruptor(OutBuffer buffer) {
+	public KafkaOutputDisruptor(OutBuffer buffer, String port) {
 		this.buffer=buffer;
 		sigue=true;
 		gson = new Gson();
+		this.port = port;
 	}
 
-	public static Producer<Long, String> createProducer() {
+	public Producer<Long, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-				KAFKA_BROKERS);
+				KAFKA_BROKERS + port);
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
 				LongSerializer.class.getName());
@@ -64,28 +67,26 @@ public class KafkaOutputDisruptor extends Thread{
 		while(sigue) {
 			OutSlot os=buffer.getNextSlotKOD();
 			if(os==null) {
-				yield();
+				try {
+					sleep(10L);
+				} catch (InterruptedException e) {e.printStackTrace();}
 			}
 			else {
 				Response rs= os.getResponse();
 				os.setResponse(null);
 				String jsonString = gson.toJson(rs);
 				ProducerRecord<Long, String>  record= new ProducerRecord<Long, String>(TOPIC_NAME, jsonString);
-				producer.send(record);
+				//producer.send(record);
 				try {
 					RecordMetadata metadata = producer.send(record).get();
-					//System.out.println("Record enviado con: "+rs.toString());
-				} catch (InterruptedException | ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.out.println("Error enviando record: "+ e);
-				}
-
+				} catch (InterruptedException | ExecutionException e) {e.printStackTrace();}
+				//System.out.println("KOD: " +  port + "\nRecord enviado con: "+rs.toString());
+				
 			}
 		}
 		producer.close();
 
-
+		System.out.println("KOD: " + port + " closed");
 
 	}
 

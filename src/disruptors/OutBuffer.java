@@ -16,7 +16,11 @@ public class OutBuffer {
 	
 	private Object kodSync;
 	
+	private Object dbSync;
+	
 	private int kodPos;
+	
+	private int dbPos;
 	
 	
 	
@@ -25,7 +29,9 @@ public class OutBuffer {
 		addPos = 0;
 		readerPos = 0;
 		kodPos = 0;
+		dbPos = 0;
 		kodSync = new Object();
+		dbSync = new Object();
 		slots = new OutSlot[n];
 		for(int i = 0; i < n; i++) {
 			slots[i] = new OutSlot();
@@ -34,8 +40,7 @@ public class OutBuffer {
 	
 	
 	public synchronized boolean addResponse(Response res) {
-		//System.out.println("Agrega Response: " + res);
-		if(slots[addPos].isProcessed()) {
+		if(slots[addPos].getResponse() == null) {
 			slots[addPos].setResponse(res);
 			addPos ++;
 			if(addPos == n) addPos = 0;
@@ -57,6 +62,22 @@ public class OutBuffer {
 				return null;
 			}
 			
+		}
+	}
+	/**
+	 * retorna el proximo slot para ser procsado por el DB
+	 * @return el proximo slot para la db
+	 */
+	public OutSlot getNextSlotDB() {
+		synchronized(dbSync) {
+			if(slots[dbPos].isReady()) {
+				OutSlot r = slots[dbPos];
+				dbPos++;
+				if(dbPos == n) dbPos = 0;
+				return r;
+			}else {
+				return null;
+			}
 		}
 	}
 	

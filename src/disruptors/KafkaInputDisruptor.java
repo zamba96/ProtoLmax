@@ -14,7 +14,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 public class KafkaInputDisruptor extends Thread {
 
-	public static String KAFKA_BROKERS = "172.24.41.149:8081";
+	public static String KAFKA_BROKERS = "172.24.41.149:";
 
 	public static String CLIENT_ID="client1";
 
@@ -34,16 +34,19 @@ public class KafkaInputDisruptor extends Thread {
 	
 	private boolean sigue;
 	
-	public KafkaInputDisruptor(Buffer buffer) {
+	private String port;
+	
+	public KafkaInputDisruptor(Buffer buffer, String port) {
 		this.buffer = buffer;
 		sigue = true;
+		this.port = port;
 	}
 
-	public static Consumer<Long, String> createConsumer() {
+	public Consumer<Long, String> createConsumer() {
 
 		Properties props = new Properties();
 
-		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
+		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS + port);
 
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID_CONFIG);
 
@@ -72,13 +75,18 @@ public class KafkaInputDisruptor extends Thread {
 		while(sigue) {
 			records = cons.poll(100);
 			for(ConsumerRecord<Long, String> record: records) {
-				String message = "KafkaIinput: " + record.offset() + ": " + record.value();
+				String message = "KafkaIinput: " + record.value();
 				//System.out.println(message);
-				buffer.addMessage(message);
+				while(!buffer.addMessage(message)) {
+					try {
+						//System.out.println("duerme logic al outputtear");
+						sleep(10L);
+					} catch (InterruptedException e) {e.printStackTrace();}
+				}
 			}
 		}
 		cons.close();
-
+		System.out.println("KID: " + port + " closed");
 	}
 	
 	public void end() {
