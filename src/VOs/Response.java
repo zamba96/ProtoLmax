@@ -37,5 +37,10 @@ public class Response {
 	public void setClassName(String className) {
 		this.className = className;
 	}
+
+	public String getIdUsuario() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
