@@ -76,10 +76,9 @@ public class KafkaInputDisruptor extends Thread {
 			records = cons.poll(100);
 			for(ConsumerRecord<Long, String> record: records) {
 				String message = "KafkaIinput: " + record.value();
-				//System.out.println(message);
+				System.out.println(message);
 				while(!buffer.addMessage(message)) {
 					try {
-						//System.out.println("duerme logic al outputtear");
 						sleep(10L);
 					} catch (InterruptedException e) {e.printStackTrace();}
 				}

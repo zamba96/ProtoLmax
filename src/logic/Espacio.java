@@ -1,5 +1,7 @@
 package logic;
 
+import java.util.ArrayList;
+
 import org.apache.kafka.common.utils.Time;
 
 public class Espacio {
@@ -14,10 +16,15 @@ public class Espacio {
 	
 	private Time horaEntrada;
 	
+	private int duracion;
+	
+	private ArrayList<Reserva> reservas;
+	
 	public Espacio(String direccion, Long id) {
 		this.setId(id);
 		this.setDireccion(direccion);
 		disponible = true;
+		reservas = new ArrayList<>(2);
 		
 	}
 	
@@ -88,6 +95,27 @@ public class Espacio {
 	
 	public String toString() {
 		return "Id: " + id + " direccion: " + direccion;
+	}
+
+	/**
+	 * @return the reservas
+	 */
+	public ArrayList<Reserva> getReservas() {
+		return reservas;
+	}
+
+	/**
+	 * @return the duracion
+	 */
+	public int getDuracion() {
+		return duracion;
+	}
+
+	/**
+	 * @param duracion the duracion to set
+	 */
+	public void setDuracion(int duracion) {
+		this.duracion = duracion;
 	}
 	
 	

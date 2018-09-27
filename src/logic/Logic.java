@@ -64,7 +64,7 @@ public class Logic extends Thread{
 				return req.getResponse();
 			}
 		}else {
-			return new ErrorResponse();
+			return new ErrorResponse("No existe el espacio con id:" + req.getId());
 		}
 	}
 	
@@ -83,7 +83,7 @@ public class Logic extends Thread{
 				return req.getResponse();
 			}
 		}else {
-			return new ErrorResponse();
+			return new ErrorResponse("No existe el espacio con id:" + req.getId());
 		}
 	}
 	

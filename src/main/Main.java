@@ -16,14 +16,19 @@ public class Main {
 
 		
 		String path = "./data/JournalTestFile.txt";
+		String path2 = "./data/JournalOut.txt";
 		File file = new File(path);
 		if(!file.exists()) file.createNewFile();
+		File file2 = new File(path2);
+		if(!file2.exists()) file2.createNewFile();
 		
 		Buffer buffer = new Buffer(bufferSize);
 		
 		Journal journaler = new Journal(0, path, buffer);
 		
 		OutBuffer outBuffer = new OutBuffer(bufferSize);
+		
+		OutPutJournal outJur = new OutPutJournal(1, path2, outBuffer);
 		
 		Logic logic = new Logic(1000, buffer, outBuffer);
 		
@@ -46,6 +51,7 @@ public class Main {
 		kod.start();
 		kod2.start();
 		kod3.start();
+		outJur.start();
 		
 		Scanner sc = new Scanner(System.in);
 		boolean flag = true;
@@ -64,6 +70,7 @@ public class Main {
 		kod.end();
 		kod2.end();
 		kod3.end();
+		outJur.end();
 		sc.close();
 		System.out.println("Stopped");
 		

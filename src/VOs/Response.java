@@ -4,11 +4,11 @@ import logic.Espacio;
 
 public class Response {
 
-	private String type;
+	protected String type;
 	
 	private Espacio espacio;
 	
-	private String className;
+	protected String className;
 
 	public String getType() {
 		return type;
@@ -27,7 +27,7 @@ public class Response {
 	}
 	
 	public String toString() {
-		return "Tipo: " + type + ", \nEspacio: " + espacio;
+		return "Tipo: " + type + ", Espacio: " + espacio;
 	}
 
 	public String getClassName() {

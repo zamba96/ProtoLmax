@@ -18,9 +18,13 @@ public class OutBuffer {
 	
 	private Object dbSync;
 	
+	private Object jurSync;
+	
 	private int kodPos;
 	
 	private int dbPos;
+
+	private int jurPos;
 	
 	
 	
@@ -30,8 +34,10 @@ public class OutBuffer {
 		readerPos = 0;
 		kodPos = 0;
 		dbPos = 0;
+		jurPos = 0;
 		kodSync = new Object();
 		dbSync = new Object();
+		jurSync = new Object();
 		slots = new OutSlot[n];
 		for(int i = 0; i < n; i++) {
 			slots[i] = new OutSlot();
@@ -80,6 +86,19 @@ public class OutBuffer {
 			}
 		}
 	}
+
+
+	public OutSlot getNextSlotJournal() {
+		synchronized(jurSync) {
+			if(slots[jurPos].isReady()) {
+				OutSlot r = slots[jurPos];
+				jurPos++;
+				if(jurPos == n) jurPos = 0;
+				return r;
+			}else {
+				return null;
+			}
+		}	}
 	
 	
 }

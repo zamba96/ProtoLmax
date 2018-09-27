@@ -76,16 +76,14 @@ public class KafkaOutputDisruptor extends Thread{
 				os.setResponse(null);
 				String jsonString = gson.toJson(rs);
 				ProducerRecord<Long, String>  record= new ProducerRecord<Long, String>(TOPIC_NAME, jsonString);
-				//producer.send(record);
-				try {
-					RecordMetadata metadata = producer.send(record).get();
-				} catch (InterruptedException | ExecutionException e) {e.printStackTrace();}
-				//System.out.println("KOD: " +  port + "\nRecord enviado con: "+rs.toString());
-				
+				producer.send(record);
+				System.out.println(rs);
+				os.setSent(true);
 			}
 		}
+		producer.flush();
 		producer.close();
-
+		
 		System.out.println("KOD: " + port + " closed");
 
 	}

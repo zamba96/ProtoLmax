@@ -6,11 +6,17 @@ public class OutSlot {
 
 	private boolean processed;
 	
+	private boolean journaled;
+	
+	private boolean sent;
+	
 	private Response response;
 	
 	
 	public OutSlot() {
 		processed = true;
+		sent = true;
+		journaled = true;
 	}
 	
 	
@@ -35,12 +41,39 @@ public class OutSlot {
 	 */
 	public void setResponse(Response response) {
 		this.response = response;
+		sent = false;
+		journaled = false;
 	}
 
 
 
 	public boolean isReady() {
 		return response != null;
+	}
+
+
+
+	/**
+	 * @return the journaled
+	 */
+	public boolean isJournaled() {
+		return journaled;
+	}
+
+
+
+	/**
+	 * @param journaled the journaled to set
+	 */
+	public void setJournaled(boolean journaled) {
+		this.journaled = journaled;
+	}
+
+
+
+	public void setSent(boolean b) {
+		// TODO Auto-generated method stub
+		this.sent = b;
 	}
 	
 }
