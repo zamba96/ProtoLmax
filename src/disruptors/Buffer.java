@@ -1,5 +1,8 @@
 package disruptors;
 
+import VOs.Request;
+import VOs.Response;
+
 public class Buffer {
 
 	private BufferSlot[] slots;
@@ -95,6 +98,11 @@ public class Buffer {
 			}
 			return r;
 		}
+	}
+
+	public Request getNextSlotPSQL() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
