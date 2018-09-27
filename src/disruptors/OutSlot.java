@@ -36,5 +36,11 @@ public class OutSlot {
 	public void setResponse(Response response) {
 		this.response = response;
 	}
+
+
+
+	public boolean isReady() {
+		return response != null;
+	}
 	
 }

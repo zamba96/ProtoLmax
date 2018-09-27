@@ -100,9 +100,9 @@ public class Logic extends Thread{
 			}else {
 				Response res = manejarRequest(bs);
 				bs.setProcessed(true);
-				
 				while(!bufferSalida.addResponse(res)) {
 					try {
+						//System.out.println("duerme logic al outputtear");
 						sleep(10L);
 					} catch (InterruptedException e) {e.printStackTrace();}
 				}
@@ -134,7 +134,7 @@ public class Logic extends Thread{
 		case "add":
 			response = addEspacio(req);
 		}
-		System.out.println("Logic.manejarMensaje(): \n" + response);
+		//System.out.println("Logic.manejarMensaje(): \n" + response);
 		return response;
 		
 		

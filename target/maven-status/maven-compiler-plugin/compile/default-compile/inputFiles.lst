@@ -4,6 +4,7 @@ C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\VOs\ErrorResponse.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\disruptors\BufferSlot.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\VOs\Response.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\disruptors\MarshallerDisruptor.java
+C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\disruptors\KafkaOutputDisruptor.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\disruptors\KafkaInputDisruptor.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\disruptors\OutSlot.java
 C:\Users\juandavid\Arquisoft\Workspace\lmaxPrototype\src\logic\Espacio.java

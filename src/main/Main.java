@@ -34,10 +34,13 @@ public class Main {
 		
 		MarshallerDisruptor marshaller = new MarshallerDisruptor(buffer);
 		
+		KafkaOutputDisruptor kod = new KafkaOutputDisruptor(outBuffer);
+		
 		journaler.start();
 		logic.start();
 		kid.start();
 		marshaller.start();
+		kod.start();
 		
 		Scanner sc = new Scanner(System.in);
 		boolean flag = true;
@@ -53,6 +56,7 @@ public class Main {
 		logic.end();
 		kid.end();
 		marshaller.end();
+		kod.end();
 		sc.close();
 		System.out.println("Stopped");
 		

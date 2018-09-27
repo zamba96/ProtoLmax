@@ -13,4 +13,5 @@ VOs\ErrorResponse.class
 disruptors\Buffer.class
 disruptors\KafkaInputDisruptor.class
 VOs\Request.class
+disruptors\KafkaOutputDisruptor.class
 disruptors\OutSlot.class
