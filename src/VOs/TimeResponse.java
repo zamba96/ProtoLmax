@@ -14,6 +14,7 @@ public class TimeResponse extends Response{
 	
 	public TimeResponse() {
 		super();
+		setClassName("TimeResponse");
 	}
 	
 	public String toString() {

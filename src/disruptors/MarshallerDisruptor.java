@@ -1,8 +1,12 @@
 package disruptors;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import VOs.AddRequest;
+import VOs.ListResponse;
 import VOs.Request;
+import VOs.ReservaRequest;
 import VOs.Response;
 import VOs.TimeResponse;
 
@@ -18,7 +22,10 @@ public class MarshallerDisruptor extends Thread{
 	public MarshallerDisruptor(Buffer buffer) {
 		this.buffer = buffer;
 		sigue = true;
-		g = new Gson();
+		g = new GsonBuilder()
+				.setDateFormat("yyyy-MM-dd HH:mm:ss")
+				.create();
+		
 
 	}
 
@@ -26,12 +33,31 @@ public class MarshallerDisruptor extends Thread{
 		while(sigue) {
 			BufferSlot slot = buffer.getNextMarschaller();
 			if(slot != null && slot.getMessage() != null ){
-				String message = "{" + slot.getMessage().split("\\{")[1];
+				String message = slot.getMessage().split("===")[1];
 				Request req = g.fromJson(message, Request.class);
-				//System.out.println("Marshaller: " + req);
-				slot.setRequest(req);
-				addEmptyResponse(req);
-				slot.marshall();
+				switch(req.getType()) {
+				//add
+				case "add":
+					AddRequest arq = g.fromJson(message, AddRequest.class);
+					slot.setRequest(arq);
+					addEmptyResponse(arq);
+					slot.marshall();
+					break;
+				case "reserva":
+					ReservaRequest rReq = g.fromJson(message, ReservaRequest.class);
+					slot.setRequest(rReq);
+					addEmptyResponse(rReq);
+					//System.out.println(rReq.getClass().getName());
+					slot.marshall();
+					break;
+				default:
+					slot.setRequest(req);
+					addEmptyResponse(req);
+					slot.marshall();
+					break;
+				}
+				//System.out.println("Marshaller: "+message+":" + req);
+				
 			}else {
 				try {
 					sleep(10L);
@@ -50,11 +76,16 @@ public class MarshallerDisruptor extends Thread{
 	}
 
 	private void addEmptyResponse(Request req) {
-		if(req.getType().equals("getTime")){
+		if(req.getType().equals("getTime") || req.getType().equals("desocupar")){
 			TimeResponse tr = new TimeResponse();
 			tr.setType(req.getType());
 			req.setResponse(tr);
-		}else {
+		}else if(req.getType().equals("getOcupados") || req.getType().equals("getDesocupados")) {
+			ListResponse ls = new ListResponse();
+			ls.setType(req.getType());
+			req.setResponse(ls);
+		}
+		else {
 			Response res = new Response();
 			res.setType(req.getType());
 			req.setResponse(res);

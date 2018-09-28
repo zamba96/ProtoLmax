@@ -36,10 +36,11 @@ public class KafkaInputDisruptor extends Thread {
 	
 	private String port;
 	
-	public KafkaInputDisruptor(Buffer buffer, String port) {
+	public KafkaInputDisruptor(Buffer buffer, String port, boolean leader) {
 		this.buffer = buffer;
 		sigue = true;
 		this.port = port;
+		GROUP_ID_CONFIG += leader;
 	}
 
 	public Consumer<Long, String> createConsumer() {
@@ -75,14 +76,16 @@ public class KafkaInputDisruptor extends Thread {
 		while(sigue) {
 			records = cons.poll(100);
 			for(ConsumerRecord<Long, String> record: records) {
-				String message = "KafkaIinput: " + record.value();
-				System.out.println(message);
-				while(!buffer.addMessage(message)) {
+				String message = record.value();
+				System.out.println(record.offset() + "===" + message);
+				while(!buffer.addMessage(record.offset() + "===" + message)) {
 					try {
 						sleep(10L);
 					} catch (InterruptedException e) {e.printStackTrace();}
 				}
+				cons.commitAsync();
 			}
+			
 		}
 		cons.close();
 		System.out.println("KID: " + port + " closed");

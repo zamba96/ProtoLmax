@@ -7,33 +7,33 @@ package VOs;
  */
 public class Request {
 
-	/*
-	 * id del Espacio de interes del request
+	/**
+	 * id del request
 	 */
 	private Long id;
 	
 	/*
+	 * id del Espacio de interes del request
+	 */
+	private Long espacioId;
+	
+	/*
 	 * tipo del request, debe ser un elemento del siguiente conunto:
-	 * {get, getTime, ocupar, desocupar, add}
+	 * {get, getTime, ocupar, desocupar, add, reserva}
 	 */
 	private String type;
-	
-	/**
-	 * direccion del Espacio que se quiere agregar
-	 */
-	private String direccion;
 	
 	/**
 	 * la respuesta que se le agrega al request
 	 */
 	private Response response;
 
-	public Long getId() {
-		return id;
+	public Long getEspacioId() {
+		return espacioId;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setEspacioId(Long id) {
+		this.espacioId = id;
 	}
 
 	public String getType() {
@@ -45,15 +45,7 @@ public class Request {
 	}
 	
 	public String toString() {
-		return "Id: " + id + ", type: " + type;
-	}
-
-	public String getDireccion() {
-		return direccion;
-	}
-
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
+		return "Id: " + espacioId + ", type: " + type;
 	}
 
 	public Response getResponse() {
@@ -62,6 +54,20 @@ public class Request {
 
 	public void setResponse(Response response) {
 		this.response = response;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
 	}
 	
 }

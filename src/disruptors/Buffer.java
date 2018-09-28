@@ -1,7 +1,6 @@
 package disruptors;
 
 import VOs.Request;
-import VOs.Response;
 
 public class Buffer {
 

@@ -2,8 +2,11 @@ package logic;
 
 import java.util.HashMap;
 
+import VOs.AddRequest;
 import VOs.ErrorResponse;
+import VOs.ListResponse;
 import VOs.Request;
+import VOs.ReservaRequest;
 import VOs.Response;
 import VOs.TimeResponse;
 import disruptors.Buffer;
@@ -12,14 +15,18 @@ import disruptors.OutBuffer;
 
 public class Logic extends Thread{
 
-	private HashMap<Long, Espacio> mapa;
-	
+	private HashMap<Long, Parqueadero> mapa;
+
 	private Buffer buffer;
-	
+
 	private boolean sigue;
-	
+
 	private OutBuffer bufferSalida;
+
+	private HashMap<Long, Parqueadero> libres;
 	
+	private HashMap<Long, Parqueadero> ocupados;
+
 	/**
 	 * inicializa el procesador de logica
 	 * @param espacios numero de espacios iniciales (para tener el HashMap listo)
@@ -31,62 +38,81 @@ public class Logic extends Thread{
 		this.buffer = buffer;
 		this.bufferSalida = bufferSalida;
 		sigue  = true;
-		//Crea muchos espacios nuevos
+		
+		//Crea muchos espacios nuevos, debug test
+		/*
 		for(Long i = 0L; i < espacios; i++) {
-			mapa.put(i, new Espacio("Calle: " + i, i));
+			mapa.put(i, new Parqueadero("Calle: " + i, i));
 		}
+		*/
+		libres = new HashMap<>(espacios);
+		ocupados = new HashMap<>(espacios/2);
+		
 	}
-	
+
 	/**
 	 * agrega un espacio al sistema
 	 * @param req el request con la informacion del espacio nuevo
 	 * @return un response con el espacio creado
 	 */
-	public Response addEspacio(Request req) {
-		Espacio nu = new Espacio(req.getDireccion(), req.getId());
+	public Response addEspacio(AddRequest req) {
+		if(mapa.get(req.getEspacioId()) == null) {
+		Parqueadero nu = new Parqueadero(req.getDireccion(), req.getEspacioId());
 		mapa.put(nu.getId(), nu);
+		libres.put(nu.getId(), nu);
 		req.getResponse().setEspacio(nu);
 		return req.getResponse();
+		}else {
+			return new ErrorResponse("Ya existe un Parqueadero con este id");
+		}
 	}
-	
+
 	/**
 	 * ocupa un espacio
 	 * @param req el Request con la info del espacio que se desea ocupar
 	 * @return un Response con el espacio ocupado o con el espacio nulo si no se pudo ocupar el espacio
 	 */
 	public Response ocuparEspacio(Request req) {
-		Espacio espacio = mapa.get(req.getId());
+		Parqueadero espacio = mapa.get(req.getEspacioId());
 		if(espacio != null) {
 			if(espacio.ocupar()) {
 				req.getResponse().setEspacio(espacio);
+				ocupados.put(espacio.getId(), espacio);
+				libres.remove(espacio.getId());
 				return req.getResponse();
 			}else {
-				return req.getResponse();
+				return new ErrorResponse("El espacio con id: " + req.getEspacioId() + " esta ocupado");
 			}
 		}else {
-			return new ErrorResponse("No existe el espacio con id:" + req.getId());
+			return new ErrorResponse("No existe el espacio con id:" + req.getEspacioId());
 		}
 	}
-	
+
 	/**
 	 * desocupar un espacio
 	 * @param req el Request con la info del espacio que desea desocupar
 	 * @return Un Response con el espacio desocupado o con el espacio nulo si no se pudo ocupar el espacio
 	 */
 	public Response desocuparEspacio(Request req){
-		Espacio espacio = mapa.get(req.getId());
+		Parqueadero espacio = mapa.get(req.getEspacioId());
 		if(espacio != null) {
-			if(espacio.desocupar()) {
+			long time = espacio.desocupar();
+			if(espacio.desocupar() != 1) {
 				req.getResponse().setEspacio(espacio);
-				return req.getResponse();
+				TimeResponse tr = (TimeResponse) req.getResponse();
+				tr.setEspacio(espacio);
+				tr.setMinutos(time);
+				ocupados.remove(espacio.getId());
+				libres.put(espacio.getId(), espacio);
+				return tr;
 			}else {
-				return req.getResponse();
+				return null;
 			}
 		}else {
-			return new ErrorResponse("No existe el espacio con id:" + req.getId());
+			return new ErrorResponse("No existe el espacio con id:" + req.getEspacioId());
 		}
 	}
-	
+
 	/**
 	 * Metodo que va recorriendo el Buffer y va manejando los Requests
 	 */
@@ -98,7 +124,7 @@ public class Logic extends Thread{
 					sleep(10L);
 				} catch (InterruptedException e) {e.printStackTrace();}
 			}else {
-				Response res = manejarRequest(bs);
+				Response res = manejarRequest(bs.getRequest());
 				bs.setProcessed(true);
 				while(!bufferSalida.addResponse(res)) {
 					try {
@@ -111,34 +137,86 @@ public class Logic extends Thread{
 		System.out.println("Logic Closed");
 	}
 
-	private Response manejarRequest(BufferSlot bs) {
-		Request req = bs.getRequest();
+	
+	/**
+	 * Maneja los requests, aca es donde se deben agregar las diferentes funcionalidades
+	 * en el switch
+	 * @param req
+	 * @return
+	 */
+	private Response manejarRequest(Request req) {
 		Response response = null;
 		switch(req.getType()) {
 		//Get
 		case "get":
 			response = get(req);
 			break;
-		//GetTime
+			//GetTime
 		case "getTime":
 			response = getTime(req);
 			break;
-		//Ocupar
+			//Ocupar
 		case "ocupar":
 			response = ocuparEspacio(req);
 			break;
-		//desocupar
+			//desocupar
 		case "desocupar":
 			response = desocuparEspacio(req);
 			break;
-		//agregar
+			//agregar
 		case "add":
-			response = addEspacio(req);
+			AddRequest aReq = (AddRequest) req; 
+			response = addEspacio(aReq);
+			break;
+		case "reserva":
+			ReservaRequest rReq = (ReservaRequest) req;
+			response = crearReserva(rReq);
+			break;
+		case "getOcupados":
+			response = getOcupados(req);
+			break;
+		case "getDesocupados":
+			response = getDesocupados(req);
+			break;
 		}
 		//System.out.println("Logic.manejarMensaje(): \n" + response);
 		return response;
-		
-		
+
+
+	}
+
+	private ListResponse getOcupados(Request req) {
+		ListResponse lr = (ListResponse) req.getResponse();
+		lr.setParqueaderos(ocupados.values());
+		return lr;
+	}
+	
+	private ListResponse getDesocupados(Request req) {
+		ListResponse lr = (ListResponse) req.getResponse();
+		lr.setParqueaderos(libres.values());
+		return lr;
+	}
+
+	/**
+	 * Crea una reserva en el sistema
+	 * @param rReq el ReservaRequest que se debe procesar
+	 * @return un Response con el parqueadero y la reserva nueva. @ErrorResponse 
+	 * si no existe el parqueadero o la reserva no es posible porque ya esta reservado para 
+	 * ese momento
+	 */
+	private Response crearReserva(ReservaRequest rReq) {
+		Parqueadero prq = mapa.get(rReq.getEspacioId());
+		if(prq != null) {
+			if(prq.agregarReserva(rReq)) {
+			rReq.getResponse().setEspacio(prq);
+			return rReq.getResponse();
+			}else {
+				return new ErrorResponse("No se pudo agregar la reserva, ya se encuentra ocupado");
+			}
+		}else {
+			return new ErrorResponse("No se encuentra el aprqueadero");
+		}
+
 	}
 
 	/**
@@ -147,12 +225,12 @@ public class Logic extends Thread{
 	 * @return response con el espacio dado
 	 */
 	private Response get(Request req) {
-		Espacio espacio = mapa.get(req.getId());
+		Parqueadero espacio = mapa.get(req.getEspacioId());
 		Response res = req.getResponse();
 		res.setEspacio(espacio);
 		return res;
 	}
-	
+
 	/**
 	 * mira el tiempo transcurrido en minutos del parqueadero seleccionado
 	 * @param id el id del parqueadero
@@ -160,9 +238,14 @@ public class Logic extends Thread{
 	 */
 	private TimeResponse getTime(Request req) {
 		TimeResponse tr = (TimeResponse) req.getResponse();
-		Espacio esp = mapa.get(req.getId());
-		tr.setMinutos(esp.darMinutos());
-		tr.setEspacio(esp);
+		Parqueadero esp = mapa.get(req.getEspacioId());
+		if(esp!=null) {
+			tr.setMinutos(esp.darMinutos());
+			tr.setEspacio(esp);
+		}else {
+			tr.setEspacio(null);
+			tr.setMinutos(-1);
+		}
 		return tr;
 	}
 
@@ -173,5 +256,5 @@ public class Logic extends Thread{
 	public void end() {
 		sigue = false;
 	}
-	
+
 }

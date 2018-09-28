@@ -6,10 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import VOs.ErrorResponse;
-import VOs.Request;
 import VOs.Response;
-import logic.Espacio;
 
 public class PostgreSQLDisruptor extends Thread {
 

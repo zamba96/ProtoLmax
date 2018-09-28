@@ -1,12 +1,10 @@
 package disruptors;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -21,11 +19,12 @@ public class KafkaOutputDisruptor extends Thread{
 
 	public OutBuffer buffer;
 	public boolean sigue;
+	private int id;
 
 
 	public static String KAFKA_BROKERS = "172.24.41.149:";
 
-	public static String CLIENT_ID="client1";
+	public String CLIENT_ID="client1";
 
 	public static String TOPIC_NAME="testChannel2";
 
@@ -40,21 +39,26 @@ public class KafkaOutputDisruptor extends Thread{
 	public static Integer MAX_POLL_RECORDS=1;
 
 	private Gson gson;
-	
+
 	private String port;
 
-	public KafkaOutputDisruptor(OutBuffer buffer, String port) {
+	private boolean leader;
+
+	public KafkaOutputDisruptor(OutBuffer buffer, String port, int id, boolean lead) {
 		this.buffer=buffer;
 		sigue=true;
 		gson = new Gson();
 		this.port = port;
+		this.id = id;
+		CLIENT_ID = "KOD: " + id;
+		leader = lead;
 	}
 
 	public Producer<Long, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
 				KAFKA_BROKERS + port);
-		props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
+		props.put(ProducerConfig.CLIENT_ID_CONFIG, CLIENT_ID);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
 				LongSerializer.class.getName());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
@@ -66,25 +70,28 @@ public class KafkaOutputDisruptor extends Thread{
 		Producer<Long, String> producer=createProducer();
 		while(sigue) {
 			OutSlot os=buffer.getNextSlotKOD();
-			if(os==null) {
+			if(os == null || os.isSent()) {
 				try {
 					sleep(10L);
 				} catch (InterruptedException e) {e.printStackTrace();}
 			}
 			else {
 				Response rs= os.getResponse();
-				os.setResponse(null);
 				String jsonString = gson.toJson(rs);
 				ProducerRecord<Long, String>  record= new ProducerRecord<Long, String>(TOPIC_NAME, jsonString);
-				producer.send(record);
-				System.out.println(rs);
+				if(leader) {
+					producer.send(record);
+					//System.out.println("KOD Leader: " + jsonString);
+				}else {
+					//System.out.println("KOD Non-leader: " + jsonString);
+				}
 				os.setSent(true);
 			}
 		}
 		producer.flush();
 		producer.close();
-		
-		System.out.println("KOD: " + port + " closed");
+
+		System.out.println("KOD: " + id + " closed");
 
 	}
 
@@ -93,6 +100,21 @@ public class KafkaOutputDisruptor extends Thread{
 	 */
 	public void end() {
 		sigue = false;
+	}
+
+	/**
+	 * @return the leader
+	 */
+	public boolean isLeader() {
+		return leader;
+	}
+
+	/**
+	 * @param leader the leader to set
+	 */
+	public void setLeader(boolean leader) {
+		System.out.println("Cambia el lider a este");
+		this.leader = leader;
 	}
 
 }

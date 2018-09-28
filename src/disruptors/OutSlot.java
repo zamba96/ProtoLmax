@@ -4,7 +4,6 @@ import VOs.Response;
 
 public class OutSlot {
 
-	private boolean processed;
 	
 	private boolean journaled;
 	
@@ -14,7 +13,6 @@ public class OutSlot {
 	
 	
 	public OutSlot() {
-		processed = true;
 		sent = true;
 		journaled = true;
 	}
@@ -22,12 +20,9 @@ public class OutSlot {
 	
 
 	public boolean isProcessed() {
-		return processed;
+		return journaled && sent;
 	}
 
-	public void setProcessed(boolean processed) {
-		this.processed = processed;
-	}
 
 	/**
 	 * @return the response
@@ -74,6 +69,10 @@ public class OutSlot {
 	public void setSent(boolean b) {
 		// TODO Auto-generated method stub
 		this.sent = b;
+	}
+	
+	public boolean isSent() {
+		return sent;
 	}
 	
 }
