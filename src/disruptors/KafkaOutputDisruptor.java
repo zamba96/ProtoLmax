@@ -13,7 +13,11 @@ import com.google.gson.Gson;
 import VOs.Response;
 
 
-
+/**
+ * Clase que Lee mensajes del OutBuffer y los manda a Kafka
+ * @author David Patino
+ *
+ */
 
 public class KafkaOutputDisruptor extends Thread{
 
@@ -22,10 +26,16 @@ public class KafkaOutputDisruptor extends Thread{
 	private int id;
 
 
+	/**
+	 * IP del servidor Kafka
+	 */
 	public static String KAFKA_BROKERS = "172.24.41.149:";
 
 	public String CLIENT_ID="client1";
 
+	/**
+	 * canal a donde se mandan los mensajes
+	 */
 	public static String TOPIC_NAME="testChannel2";
 
 	public static String GROUP_ID_CONFIG="consumerGroup1";
@@ -38,36 +48,65 @@ public class KafkaOutputDisruptor extends Thread{
 
 	public static Integer MAX_POLL_RECORDS=1;
 
+	/**
+	 * JSON converter
+	 */
 	private Gson gson;
 
+	/**
+	 * puerto del servidor
+	 */
 	private String port;
 
+	/**
+	 * si se corre en modo leader o no
+	 */
 	private boolean leader;
 
-	public KafkaOutputDisruptor(OutBuffer buffer, String port, int id, boolean lead) {
+	private String ip;
+
+	/**
+	 * Crea un nuevo KOD
+	 * @param buffer el buffer de donde se leen las respuestas
+	 * @param port puerto del Servidor Kafka
+	 * @param id id del KOD
+	 * @param lead si se corre en modo leader o no
+	 * Si es modo lider, si se van a eníar los mensajes, si no, no se envía nada
+	 * @param ip 
+	 */
+	public KafkaOutputDisruptor(OutBuffer buffer, String port, int id, boolean lead, String ip) {
+		this.ip = ip;
 		this.buffer=buffer;
 		sigue=true;
 		gson = new Gson();
 		this.port = port;
 		this.id = id;
 		CLIENT_ID = "KOD: " + id;
-		leader = lead;
+
 	}
 
-	public Producer<Long, String> createProducer() {
+	/**
+	 * crea un KafkaProducer
+	 * @return un nuevo Kafka Producer
+	 */
+	public Producer<String, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-				KAFKA_BROKERS + port);
+				ip+":" + port);
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, CLIENT_ID);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-				LongSerializer.class.getName());
+				StringSerializer.class.getName());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 				StringSerializer.class.getName());
 		return new KafkaProducer<>(props);
 	}
 
+	/**
+	 * Lee respuestas del OutBuffer y las envia por el canal activo de Kafka
+	 */
 	public void run() {
-		Producer<Long, String> producer=createProducer();
+		System.out.println("KOD: Start");
+		Producer<String, String> producer=createProducer();
 		while(sigue) {
 			OutSlot os=buffer.getNextSlotKOD();
 			if(os == null || os.isSent()) {
@@ -78,14 +117,11 @@ public class KafkaOutputDisruptor extends Thread{
 			else {
 				Response rs= os.getResponse();
 				String jsonString = gson.toJson(rs);
-				ProducerRecord<Long, String>  record= new ProducerRecord<Long, String>(TOPIC_NAME, jsonString);
-				if(leader) {
-					producer.send(record);
-					//System.out.println("KOD Leader: " + jsonString);
-				}else {
-					//System.out.println("KOD Non-leader: " + jsonString);
-				}
+				ProducerRecord<String, String>  record= new ProducerRecord<String, String>(TOPIC_NAME, rs.getId()+"", jsonString);
+				producer.send(record);
+				//System.out.println("KOD Leader: " + jsonString);
 				os.setSent(true);
+				//avanzar();
 			}
 		}
 		producer.flush();
@@ -115,6 +151,25 @@ public class KafkaOutputDisruptor extends Thread{
 	public void setLeader(boolean leader) {
 		System.out.println("Cambia el lider a este");
 		this.leader = leader;
+	}
+
+	private int cant = 0;
+
+	private double start;
+
+	private void avanzar() {
+		cant ++;
+
+		if(cant == 100) {
+			double dur = System.currentTimeMillis() - start;
+			double seg = (dur) /1000;
+			double throughput = (double)100/seg;
+			System.out.println("KOD " + "," + throughput);
+			cant = 0;
+		}
+		if(cant == 0) {
+			start = System.currentTimeMillis();
+		}
 	}
 
 }

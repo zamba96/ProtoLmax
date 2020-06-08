@@ -1,0 +1,7 @@
+DROP TABLE usr_prq;
+DROP TABLE usr_dueno;
+DROP TABLE usr_port;
+DROP TABLE res;
+
+DROP TABLE usr;
+DROP TABLE spot;

@@ -4,12 +4,26 @@ import java.util.Date;
 
 import VOs.ReservaRequest;
 
+/**
+ * modela  una reserva
+ * @author juandavid
+ *
+ */
 public class Reserva {
 
+	/**
+	 * fecha inicio de la reserva (debe contener hora tmabien)
+	 */
 	private Date fechaInicio;
 	
+	/**
+	 * fecha final de la reserva (debe contener hora tambien)
+	 */
 	private Date fechaFin;
 
+	/**
+	 * usuario que realiza la reserva
+	 */
 	private Usuario user;
 	
 	/**

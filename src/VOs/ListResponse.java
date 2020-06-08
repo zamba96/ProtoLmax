@@ -1,6 +1,5 @@
 package VOs;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import logic.Parqueadero;

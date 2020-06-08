@@ -5,9 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import VOs.Response;
 
+
+/**
+ * 
+ * @author David Patino
+ *
+ */
 public class PostgreSQLDisruptor extends Thread {
 
 	OutBuffer buffer;
@@ -18,9 +23,9 @@ public class PostgreSQLDisruptor extends Thread {
 
 
 
-	private final String url = "jdbc:postgresql://192.168.56.1:5432/myDB";
-	private final String user = "Python_User";
-	private final String password = "1234";
+	private final String url = "jdbc:postgresql://172.24.41.149:5432/nidoo_db";
+	private final String user = "postgres";
+	private final String password = "";
 
 
 	public PostgreSQLDisruptor(OutBuffer buffer) {

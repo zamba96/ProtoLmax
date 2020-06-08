@@ -1,11 +1,25 @@
 package logic;
 
+/**
+ * modela un usuario
+ * @author juandavid
+ *
+ */
 public class Usuario {
 
+	/**
+	 * id del usuario
+	 */
 	private Long id;
 	
+	/**
+	 * nombre del usuario
+	 */
 	private String nombre;
 	
+	/**
+	 * cedula del usuario
+	 */
 	private String cedula;
 
 	/**

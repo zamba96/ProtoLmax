@@ -1,0 +1,11 @@
+Protocolo Servidor-Supervisor (json)
+Los servidores envian mensajes y pings por el topic "SupervisorInChannel"
+El supervisor envia mensajes por el topic "SupervisorOutChannel"
+
+Mensaje:
+	serverId:<string>, //El id del servidor del que llega o al que va el mensaje
+	type:<string>,  //El tipo de mensaje, debe ser {registrar, ping, OK} para los que manda el server y {RegistroOK, setMode} para los que manda el Supervisor
+	args:<String[]> //Los argumentos/parametros del mensaje. Para registrar, ping y OK no hay argumentos de parte del servidor. 
+					//Para RegistroOK se manda 1 argumento: modo = {"leader", "backup"} (alguno de los dos, indica que tipo de servidorva a iniciar)
+					//Para setMode tambien se manda el mismo argumento con las mismas caracteristicas
+	

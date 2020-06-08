@@ -7,7 +7,7 @@ public class Response {
 	/**
 	 * el id del request al cual corresponde este response
 	 */
-	private Long id;
+	protected Long id;
 
 	/**
 	 * tipo del response

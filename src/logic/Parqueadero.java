@@ -6,29 +6,57 @@ import java.util.Date;
 
 import VOs.ReservaRequest;
 
+/**
+ * modela un parqueadero
+ * @author juandavid
+ *
+ */
 public class Parqueadero {
 
+	/**
+	 * Direccion de un parqueadero
+	 */
 	private String direccion;
 	
+	/**
+	 * id del parqueadero
+	 */
 	private Long id;	
 	
+	/**
+	 * modela si esta disponible
+	 */
 	private boolean disponible;
 	
+	/**
+	 * modela si esta reservado
+	 */
 	private boolean reservado;
 	
+	/**
+	 * modela la hora de entrada del usuario actual
+	 */
 	private Date horaEntrada;
 	
+	/**
+	 * longitud (geografica)
+	 */
 	private double lon;
 	
+	/**
+	 * latitud (geografica)
+	 */
 	private double lat;
 	
-	
+	/**
+	 * lista de reservas del parqueadero
+	 */
 	private ArrayList<Reserva> reservas;
 	
 	/**
 	 * crea un parqueadero con la direccion y el id dados
-	 * @param direccion
-	 * @param id
+	 * @param direccion del parqueadero
+	 * @param id del parqueadero
 	 */
 	public Parqueadero(String direccion, Long id) {
 		this.setId(id);
@@ -37,6 +65,10 @@ public class Parqueadero {
 		reservas = new ArrayList<>(2);
 	}
 	
+	/**
+	 * indica si esta disponible
+	 * @return
+	 */
 	public boolean esDisponible() {
 		return disponible;
 	}
@@ -70,6 +102,11 @@ public class Parqueadero {
 		}
 	}
 	
+	/**
+	 * da los minutos transcurridos desde la horaEntrada
+	 * @return los minutos desde la hora de entrada hasta el momendo donde se invoca el metodo
+	 * -1 si no hay hora de entrada
+	 */
 	public long darMinutos() {
 		if(horaEntrada != null) {
 			long mili = System.currentTimeMillis() - horaEntrada.getTime();
@@ -79,30 +116,56 @@ public class Parqueadero {
 		}
 	}
 
+	/**
+	 * 
+	 * @return el id del parqueadero
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * sets the id
+	 * @param id to set
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * 
+	 * @return la direccion del parqueadero
+	 */
 	public String getDireccion() {
 		return direccion;
 	}
-
+	/**
+	 * cambia la direccion
+	 * @param direccion direccion nueva
+	 */
 	public void setDireccion(String direccion) {
 		this.direccion = direccion;
 	}
 
+	/**
+	 * indica si esta reservado
+	 * @return true si si, false si no
+	 */
 	public boolean isReservado() {
 		return reservado;
 	}
-
+	
+	/**
+	 * cambia el estado de reserva
+	 * @param reservado nuevo estado
+	 */
 	public void setReservado(boolean reservado) {
 		this.reservado = reservado;
 	}
 	
+	/**
+	 * to string
+	 */
 	public String toString() {
 		return "Id: " + id + " direccion: " + direccion;
 	}
